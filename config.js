@@ -16,7 +16,7 @@ const configs = {
             port: 5433,
             username: 'postgres',
             password: 'asd',
-            database: 'example',
+            database: 'notflix',
             define: {
                 timestamps: true, //? Nos obliga a que todas las tablas tengan la propiedad createdAt y upadtedAt
                 underscored: true,
