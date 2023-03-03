@@ -15,6 +15,9 @@ const success = ({status, data, message, res}) => {
         error: false,
         status: status,
         message: message,
+        count,
+        next,
+        prev,
         data: data
     })
 } 

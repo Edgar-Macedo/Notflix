@@ -1,24 +1,39 @@
 const movieControllers = require("./movies.controllers")
 const { success, error } = require("../utils/handleResponses")
 const { addToFirebaseMovieVideo } = require("../utils/firebase")
+const host = require('../../config').api.host
+
 
 const getAllMovies = (req, res) => {
+
+  const offset = Number(req.query.offset) || 0
+
+  const limit = Number(req.query.limit) || 10
+
+  const search = req.query.search 
+
   movieControllers
-    .findAllMovies()
+    .findAllMovies(limit, offset, search)
     .then((data) => {
-      success({
+
+      const nextPageUrl = data.count - offset > limit ? `${host}/api/v1/movies?offset=${offset + limit}&limit=${limit}` : null
+      const prevPageUrl = (offset - limit) >= 0 ? `${host}/api/v1/movies?offset=${offset - limit}&limit=${limit}` : null
+      responces.success({
         res,
         status: 200,
-        data,
-        message: "Getting all movies",
+        count: data.count,
+        next: nextPageUrl,
+        prev: prevPageUrl,
+        data: data.rows,
+        message: 'Getting all the movies'
       });
     })
     .catch((err) => {
-      error({
-        err,
-        status: 400,
+      responses.error({
+        res,
         data: err,
-        message: "Something bad",
+        message: 'Something bad getting the movies',
+        status: 400
       })
     })
 }
@@ -57,7 +72,55 @@ const postMovie = async (req, res) => {
   }
 }
 
+
+const postGenreToMovie = (req, res) => {
+
+  const {movieId, genreId} = req.params
+
+  movieControllers.addGenreToMovie({movieId, genreId})
+      .then(data => {
+          responses.success({
+              res,
+              status:201,
+              message: 'Genre added to movie successfully',
+              data
+          })
+      })
+      .catch(err => {
+          responses.error({
+              res,
+              status:400,
+              message: err.message,
+              data: err
+          })
+      })
+}
+
+const getAllMoviesByGenre = (req, res) => {
+  const genreId = req.params.genreId
+  movieControllers.findAllMoviesByGenre(genreId)
+      .then(data => {
+          responses.success({
+              res,
+              status: 200,
+              data,
+              message: 'Getting all the movies'
+          })
+      })
+      .catch(err => {
+          responses.error({
+              res,
+              data: err,
+              message: 'Something bad getting the movies',
+              status: 400
+          })
+      })  
+}
+
+
 module.exports = {
   getAllMovies,
   postMovie,
+  postGenreToMovie,
+  getAllMoviesByGenre
 }
