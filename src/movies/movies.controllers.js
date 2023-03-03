@@ -1,4 +1,4 @@
-const Movies = require("../models/movies.models")
+const Movies = require("../models/movies.models");
 const uuid = require("uuid")
 
 const findAllMovies = async () => {
